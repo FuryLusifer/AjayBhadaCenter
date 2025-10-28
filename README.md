@@ -66,7 +66,7 @@ You can run the following commands in your terminal:
 
 1. Clone this repository  
    ```bash
-   git clone https://github.com/yourusername/AjayBhadaCenter.git
+   git clone https://github.com/FuryLusifer/AjayBhadaCenter.git
    cd AjayBhadaCenter
    ```
 
@@ -85,7 +85,7 @@ You can run the following commands in your terminal:
    npm run dev
    ```
 
-Your app will be available at **http://localhost:5173** by default.
+Your app will be available at **http://localhost:8080** by default.
 
 ---
 
@@ -131,10 +131,6 @@ If you wish to contribute:
 This project is distributed under the **MIT License**.
 
 ---
-
-## 📅 Last Updated
-October 28, 2025
-
 ---
 
 **Developed with ❤️ by the Ajay Bhada Center Team**  
