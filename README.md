@@ -133,5 +133,4 @@ This project is distributed under the **MIT License**.
 ---
 ---
 
-**Developed with ❤️ by the Ajay Bhada Center Team**  
-Powered by **React + Supabase**
+**Developed with ❤️ by Piyush Kayastha**  
