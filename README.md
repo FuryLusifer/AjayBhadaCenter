@@ -131,6 +131,5 @@ If you wish to contribute:
 This project is distributed under the **MIT License**.
 
 ---
----
 
 **Developed with ❤️ by Piyush Kayastha**  
