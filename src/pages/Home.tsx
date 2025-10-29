@@ -5,9 +5,12 @@ import { supabase } from "@/integrations/supabase/client";
 import ProductCard from "@/components/ProductCard";
 import { ArrowRight } from "lucide-react";
 import heroImage from "@/assets/hero-kitchen.jpg";
-import cookwareImg from "@/assets/category-cookware.jpg";
-import utensilsImg from "@/assets/category-utensils.jpg";
 import appliancesImg from "@/assets/category-appliances.jpg";
+import cookwareImg from "@/assets/category-cookware.png";
+import cutleryImg from "@/assets/category-cutlery.jpg";
+import miscImg from "@/assets/category-misc.png";
+import poojaItemsImg from "@/assets/category-pooja-items.png";
+import utensilsImg from "@/assets/category-utensils.jpg";
 
 interface Category {
   id: string;
@@ -30,9 +33,12 @@ const Home = () => {
   const [banners, setBanners] = useState<any[]>([]);
 
   const categoryImages: Record<string, string> = {
-    Cookware: cookwareImg,
-    Utensils: utensilsImg,
     Appliances: appliancesImg,
+    Cookware: cookwareImg,
+    Cutlery: cutleryImg,
+    Miscellaneous: miscImg,
+    "Pooja Items": poojaItemsImg,
+    Utensils: utensilsImg,
   };
 
   useEffect(() => {
