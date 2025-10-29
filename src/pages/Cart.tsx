@@ -8,8 +8,14 @@ const Cart = () => {
   const { items, updateQuantity, removeFromCart, loading } = useCart();
 
   const subtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  const getDeliveryCharge = (amount: number): number => {
+    if (amount <= 1000) return 150;
+    if (amount <= 5000) return 200; // covers >1000 up to 5000
+    return 300; // >5000
+  };
+  const deliverycharge = getDeliveryCharge(subtotal);
   const tax = subtotal * 0.0; // No tax for simplicity
-  const total = subtotal + tax;
+  const total = subtotal + tax + deliverycharge;
 
   if (loading) {
     return (
@@ -115,6 +121,10 @@ const Cart = () => {
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Tax</span>
                 <span className="font-semibold">₹{tax.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Delivery Charge</span>
+                <span className="font-semibold">Rs. {deliverycharge.toFixed(2)}</span>
               </div>
               <div className="border-t pt-2 flex justify-between text-lg font-bold">
                 <span>Total</span>
