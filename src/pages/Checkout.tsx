@@ -14,7 +14,8 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import bankQRCode from "@/assets/bank-qr-code.png";
+import bankQRCode1 from "@/assets/bank-qr-code.png";
+import bankQRCode2 from "@/assets/nabil_bank_qr.jpg";
 
 const checkoutSchema = z.object({
   phone: z.string()
@@ -56,7 +57,17 @@ const Checkout = () => {
   });
 
   const paymentMethod = form.watch("paymentMethod");
-  const total = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  //const total = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  const subtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  const getDeliveryCharge = (amount: number): number => {
+    if (amount <= 1000) return 150;
+    if (amount <= 5000) return 200; // covers >1000 up to 5000
+    return 300; // >5000
+  };
+
+  const deliverycharge = getDeliveryCharge(subtotal);
+  const tax = subtotal * 0.0; // No tax for simplicity
+  const total = subtotal + tax + deliverycharge;
 
   const onSubmit = async (values: z.infer<typeof checkoutSchema>) => {
     if (!user) {
@@ -228,21 +239,29 @@ const Checkout = () => {
                     <h3 className="font-semibold mb-3">Bank Transfer Details</h3>
                     <div className="space-y-2 text-sm mb-4">
                       <p><strong>Account Name:</strong> Ajay Bhada Center</p>
-                      <p><strong>Account Number:</strong> 1234567890</p>
+                      <p><strong>Account Number:</strong> 02301017504873</p>
                       <p><strong>Bank Name:</strong> Nabil Bank</p>
                       <p><strong>Branch:</strong> Hetauda Branch</p>
                       <p><strong>SWIFT Code:</strong> NARBNPKA</p>
                     </div>
+                    {/* <div className="mb-4">
+                      <p className="text-sm font-semibold mb-2">Or scan QR code:</p>
+                      <img src={bankQRCode1} alt="Payment QR Code" className="w-90 h-90 border rounded" />
+                      <img src={bankQRCode2} alt="Payment QR Code" className="w-20 h-20 border rounded" />
+                    </div> */}
                     <div className="mb-4">
                       <p className="text-sm font-semibold mb-2">Or scan QR code:</p>
-                      <img src={bankQRCode} alt="Payment QR Code" className="w-90 h-90 border rounded" />
+                      <div className="flex gap-4 items-center">
+                        <img src={bankQRCode1} alt="Payment QR Code" className="w-90 h-90 border rounded" />
+                        <img src={bankQRCode2} alt="Payment QR Code" className="w-65 h-60 border rounded" />
+                      </div>
                     </div>
                     <FormField
                       control={form.control}
                       name="transactionCode"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Transaction Code</FormLabel>
+                          <FormLabel>Transaction/Reference Code</FormLabel>
                           <FormControl>
                             <Input placeholder="Enter transaction reference number" {...field} />
                           </FormControl>
@@ -277,10 +296,24 @@ const Checkout = () => {
                 </div>
               ))}
             </div>
-            <div className="border-t pt-4 flex justify-between text-lg font-bold">
+            {/* <div className="border-t pt-4 flex justify-between text-lg font-bold">
               <span>Total</span>
               <span className="text-primary">Rs.{total.toFixed(2)}</span>
+            </div> */}
+            <div className="border-t pt-3 space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Subtotal</span>
+              <span className="font-medium">Rs. {subtotal.toFixed(2)}</span>
             </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Delivery Charge</span>
+              <span className="font-medium">Rs. {deliverycharge.toFixed(2)}</span>
+            </div>
+            <div className="border-t pt-2 flex justify-between text-lg font-bold">
+              <span>Total</span>
+              <span className="text-primary">Rs. {total.toFixed(2)}</span>
+            </div>
+          </div>
           </Card>
         </div>
       </div>
