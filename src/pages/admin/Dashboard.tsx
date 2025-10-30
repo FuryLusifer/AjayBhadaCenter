@@ -84,7 +84,7 @@ const Dashboard = () => {
     },
     {
       title: "Total Revenue",
-      value: `₹${stats.totalRevenue.toFixed(2)}`,
+      value: `Rs.${stats.totalRevenue.toFixed(2)}`,
       icon: TrendingUp,
       color: "text-primary",
     },

@@ -112,7 +112,7 @@ const Orders = () => {
                       {item.product_name} x {item.quantity}
                     </span>
                     <span className="font-semibold">
-                      ₹{(item.unit_price * item.quantity).toFixed(2)}
+                      Rs.{(item.unit_price * item.quantity).toFixed(2)}
                     </span>
                   </div>
                 ))}
@@ -123,7 +123,7 @@ const Orders = () => {
                   Payment: {order.payment_method === "cod" ? "Cash on Delivery" : "Bank Transfer"}
                 </span>
                 <span className="text-lg font-bold text-primary">
-                  Total: ₹{order.total_amount.toFixed(2)}
+                  Total: Rs.{order.total_amount.toFixed(2)}
                 </span>
               </div>
             </Card>

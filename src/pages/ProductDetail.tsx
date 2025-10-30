@@ -148,12 +148,12 @@ const ProductDetail = () => {
           
           <div className="flex flex-wrap items-baseline gap-2 sm:gap-3 mb-6">
             <span className="text-3xl sm:text-4xl font-bold text-primary">
-              ₹{discountedPrice.toFixed(2)}
+              Rs.{discountedPrice.toFixed(2)}
             </span>
             {offer && (
               <>
                 <span className="text-xl text-muted-foreground line-through">
-                  ₹{product.price.toFixed(2)}
+                  Rs.{product.price.toFixed(2)}
                 </span>
                 <Badge className="bg-destructive text-destructive-foreground">
                   {offer.discount_percentage}% OFF

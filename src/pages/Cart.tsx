@@ -65,7 +65,7 @@ const Cart = () => {
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-base sm:text-lg mb-2 truncate">{item.product.name}</h3>
                   <p className="text-lg sm:text-xl font-bold text-primary mb-3">
-                    ₹{item.product.price.toFixed(2)}
+                    Rs.{item.product.price.toFixed(2)}
                   </p>
 
                   <div className="flex flex-wrap items-center gap-3 sm:gap-4">
@@ -101,7 +101,7 @@ const Cart = () => {
 
                 <div className="sm:text-right w-full sm:w-auto">
                   <p className="font-bold text-base sm:text-lg">
-                    ₹{(item.product.price * item.quantity).toFixed(2)}
+                    Rs.{(item.product.price * item.quantity).toFixed(2)}
                   </p>
                 </div>
               </div>
@@ -116,11 +116,11 @@ const Cart = () => {
             <div className="space-y-2 mb-4">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Subtotal</span>
-                <span className="font-semibold">₹{subtotal.toFixed(2)}</span>
+                <span className="font-semibold">Rs.{subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Tax</span>
-                <span className="font-semibold">₹{tax.toFixed(2)}</span>
+                <span className="font-semibold">Rs.{tax.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Delivery Charge</span>
@@ -128,7 +128,7 @@ const Cart = () => {
               </div>
               <div className="border-t pt-2 flex justify-between text-lg font-bold">
                 <span>Total</span>
-                <span className="text-primary">₹{total.toFixed(2)}</span>
+                <span className="text-primary">Rs.{total.toFixed(2)}</span>
               </div>
             </div>
             <Button asChild size="lg" className="w-full">

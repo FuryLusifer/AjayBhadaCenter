@@ -264,7 +264,7 @@ const Products = () => {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="price">Price (₹)*</Label>
+                  <Label htmlFor="price">Price (Rs.)*</Label>
                   <Input
                     id="price"
                     type="number"
@@ -400,7 +400,7 @@ const Products = () => {
                 <TableCell className="hidden sm:table-cell">
                   {categories.find((c) => c.id === product.category_id)?.name || "-"}
                 </TableCell>
-                <TableCell className="whitespace-nowrap">₹{product.price.toFixed(2)}</TableCell>
+                <TableCell className="whitespace-nowrap">Rs.{product.price.toFixed(2)}</TableCell>
                 <TableCell className="hidden md:table-cell">{product.stock_quantity}</TableCell>
                 <TableCell className="hidden lg:table-cell">{product.is_featured ? "Yes" : "No"}</TableCell>
                 <TableCell className="text-right">

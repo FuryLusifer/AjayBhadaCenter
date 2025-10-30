@@ -60,11 +60,11 @@ const ProductCard = ({ id, name, price, image_url, stock_quantity, discount }: P
           <h3 className="font-semibold text-lg line-clamp-2 mb-2">{name}</h3>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-bold text-primary">
-              ₹{discountedPrice.toFixed(2)}
+              Rs.{discountedPrice.toFixed(2)}
             </span>
             {discount && (
               <span className="text-sm text-muted-foreground line-through">
-                ₹{price.toFixed(2)}
+                Rs.{price.toFixed(2)}
               </span>
             )}
           </div>

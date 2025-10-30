@@ -129,7 +129,7 @@
 //                 </TableCell>
 //                 <TableCell className="hidden md:table-cell text-sm">{format(new Date(order.created_at), "PPP")}</TableCell>
 //                 <TableCell className="font-semibold">
-//                   <div className="text-sm">₹{order.total_amount.toFixed(2)}</div>
+//                   <div className="text-sm">Rs.{order.total_amount.toFixed(2)}</div>
 //                   <p className="text-xs text-muted-foreground">
 //                     {order.payment_method === "cod" ? "COD" : "Bank Transfer"}
 //                   </p>
@@ -359,15 +359,15 @@ const Orders = () => {
       }
       doc.text(item.product_name.substring(0, 35), 20, yPos);
       doc.text(item.quantity.toString(), 120, yPos);
-      doc.text(`₹${item.unit_price.toFixed(2)}`, 145, yPos);
-      doc.text(`₹${item.subtotal.toFixed(2)}`, 170, yPos);
+      doc.text(`Rs.${item.unit_price.toFixed(2)}`, 145, yPos);
+      doc.text(`Rs.${item.subtotal.toFixed(2)}`, 170, yPos);
       yPos += 7;
     });
     
     // Total
     yPos += 5;
     doc.setFont("helvetica", "bold");
-    doc.text(`TOTAL AMOUNT: ₹${order.total_amount.toFixed(2)}`, 120, yPos);
+    doc.text(`TOTAL AMOUNT: Rs.${order.total_amount.toFixed(2)}`, 120, yPos);
     
     // Payment Info
     yPos += 10;
@@ -428,7 +428,7 @@ const Orders = () => {
       yPos += 6;
       
       doc.text(`Phone: ${order.phone}`, 20, yPos);
-      doc.text(`Amount: ₹${order.total_amount.toFixed(2)}`, 120, yPos);
+      doc.text(`Amount: Rs.${order.total_amount.toFixed(2)}`, 120, yPos);
       yPos += 6;
       
       doc.text(`Status: ${order.order_status}`, 20, yPos);
@@ -488,7 +488,7 @@ const Orders = () => {
                 </TableCell>
                 <TableCell className="hidden md:table-cell text-sm">{format(new Date(order.created_at), "PPP")}</TableCell>
                 <TableCell className="font-semibold">
-                  <div className="text-sm">₹{order.total_amount.toFixed(2)}</div>
+                  <div className="text-sm">Rs.{order.total_amount.toFixed(2)}</div>
                   <p className="text-xs text-muted-foreground">
                     {order.payment_method === "cod" ? "COD" : "Bank Transfer"}
                   </p>
