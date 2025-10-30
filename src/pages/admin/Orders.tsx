@@ -298,160 +298,546 @@ const Orders = () => {
     return colors[status] || "bg-gray-500";
   };
 
+  // const generateOrderPDF = (order: Order) => {
+  //   const doc = new jsPDF();
+  //   const pageWidth = doc.internal.pageSize.width;
+    
+  //   // Header
+  //   doc.setFontSize(20);
+  //   doc.setFont("helvetica", "bold");
+  //   doc.text("AJAY BHADA CENTER", pageWidth / 2, 15, { align: "center" });
+  //   doc.setFontSize(15);
+  //   doc.setFont("helvetica", "normal");
+  //   doc.text("Order Receipt", pageWidth / 2, 22, { align: "center" });
+  //   doc.line(20, 24, pageWidth - 20, 24);
+
+  //   // Order Info
+  //   doc.setFontSize(10);
+  //   doc.setFont("helvetica", "normal");
+  //   doc.text(`Order ID: ${order.id}`, 20, 35);
+  //   doc.text(`Date: ${format(new Date(order.created_at), "PPP, h:mm:ss a")}`, 20, 42);
+  //   doc.text(`Status: ${order.order_status.toUpperCase()}`, 20, 49);
+    
+  //   // Customer Details
+  //   doc.setFontSize(12);
+  //   doc.setFont("helvetica", "bold");
+  //   doc.text("CUSTOMER DETAILS", 20, 62);
+  //   doc.setFontSize(10);
+  //   doc.setFont("helvetica", "normal");
+  //   doc.text(`Name: ${order.profiles?.full_name || 'N/A'}`, 20, 70);
+  //   doc.text(`Email: ${order.profiles?.email || 'N/A'}`, 20, 77);
+  //   doc.text(`Phone: ${order.phone}`, 20, 84);
+    
+  //   // Shipping Address
+  //   doc.setFontSize(12);
+  //   doc.setFont("helvetica", "bold");
+  //   doc.text("SHIPPING ADDRESS", 20, 97);
+  //   doc.setFontSize(10);
+  //   doc.setFont("helvetica", "normal");
+  //   const addressLines = doc.splitTextToSize(order.shipping_address, 170);
+  //   doc.text(addressLines, 20, 105);
+    
+  //   // Order Items
+  //   let yPos = 105 + (addressLines.length * 7) + 8;
+  //   doc.setFontSize(12);
+  //   doc.setFont("helvetica", "bold");
+  //   doc.text("ORDER ITEMS", 20, yPos);
+  //   yPos += 8;
+    
+  //   doc.setFontSize(10);
+  //   doc.setFont("helvetica", "normal");
+    
+  //   // Table header
+  //   doc.setFont("helvetica", "bold");
+  //   doc.text("Product", 20, yPos);
+  //   doc.text("Qty", 120, yPos);
+  //   doc.text("Price", 145, yPos);
+  //   doc.text("Total", 170, yPos);
+  //   yPos += 7;
+    
+  //   doc.setFont("helvetica", "normal");
+  //   // Table rows
+  //   order.order_items?.forEach((item) => {
+  //     if (yPos > 270) {
+  //       doc.addPage();
+  //       yPos = 20;
+  //     }
+  //     doc.text(item.product_name.substring(0, 35), 20, yPos);
+  //     doc.text(item.quantity.toString(), 120, yPos);
+  //     doc.text(`Rs. ${item.unit_price.toFixed(2)}`, 145, yPos);
+  //     doc.text(`Rs. ${item.subtotal.toFixed(2)}`, 170, yPos);
+  //     yPos += 7;
+  //   });
+    
+  //   // Total
+  //   yPos += 5;
+  //   doc.setFont("helvetica", "normal")
+  //   doc.text(`Delivery Charge: Rs. ${500}`, 120, yPos);
+  //   yPos += 5;
+  //   doc.setFont("helvetica", "bold");
+  //   doc.text(`TOTAL AMOUNT: Rs. ${order.total_amount.toFixed(2)}`, 120, yPos);
+    
+  //   // Payment Info
+  //   yPos += 10;
+  //   doc.setFontSize(12);
+  //   doc.text("PAYMENT DETAILS", 20, yPos);
+  //   yPos += 8;
+  //   doc.setFontSize(10);
+  //   doc.setFont("helvetica", "normal");
+  //   doc.text(`Method: ${order.payment_method === 'cod' ? 'Cash on Delivery' : 'Bank Transfer'}`, 20, yPos);
+  //   yPos += 7;
+  //   doc.text(`Status: ${order.payment_status.toUpperCase()}`, 20, yPos);
+  //   if (order.transaction_code) {
+  //     yPos += 7;
+  //     doc.text(`Transaction Ref: ${order.transaction_code}`, 20, yPos);
+  //   }
+    
+  //   // Footer
+  //   doc.setFontSize(8);
+  //   doc.setTextColor(128, 128, 128);
+  //   doc.text("Thank you for your order!", pageWidth / 2, 285, { align: "center" });
+    
+  //   // Save
+  //   doc.save(`order-${order.id.substring(0, 8)}.pdf`);
+  //   toast.success("PDF downloaded successfully!");
+  // };
+
+  /***************************************** New Logic ******************************************/
   const generateOrderPDF = (order: Order) => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
     
-    // Header
-    doc.setFontSize(20);
+    // Color scheme
+    const primaryColor = [41, 128, 185]; // Professional blue
+    const secondaryColor = [52, 73, 94]; // Dark gray
+    const lightGray = [236, 240, 241];
+    
+    // Header with colored background
+    doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.rect(0, 0, pageWidth, 28, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
     doc.setFont("helvetica", "bold");
-    doc.text("AJAY BHADA CENTER", pageWidth / 2, 18, { align: "center" });
-    doc.setFontSize(15);
-    doc.setFont("helvetica", "normal");
-    doc.text("Order Receipt", pageWidth / 2, 25, { align: "center" });
-
-    // Order Info
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.text(`Order ID: ${order.id}`, 20, 35);
-    doc.text(`Date: ${format(new Date(order.created_at), "PPP")}`, 20, 42);
-    doc.text(`Status: ${order.order_status.toUpperCase()}`, 20, 49);
-    
-    // Customer Details
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "bold");
-    doc.text("CUSTOMER DETAILS", 20, 62);
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.text(`Name: ${order.profiles?.full_name || 'N/A'}`, 20, 70);
-    doc.text(`Email: ${order.profiles?.email || 'N/A'}`, 20, 77);
-    doc.text(`Phone: ${order.phone}`, 20, 84);
-    
-    // Shipping Address
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "bold");
-    doc.text("SHIPPING ADDRESS", 20, 97);
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    const addressLines = doc.splitTextToSize(order.shipping_address, 170);
-    doc.text(addressLines, 20, 105);
-    
-    // Order Items
-    let yPos = 105 + (addressLines.length * 7) + 8;
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "bold");
-    doc.text("ORDER ITEMS", 20, yPos);
-    yPos += 8;
-    
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    
-    // Table header
-    doc.setFont("helvetica", "bold");
-    doc.text("Product", 20, yPos);
-    doc.text("Qty", 120, yPos);
-    doc.text("Price", 145, yPos);
-    doc.text("Total", 170, yPos);
-    yPos += 7;
-    
-    doc.setFont("helvetica", "normal");
-    // Table rows
-    order.order_items?.forEach((item) => {
-      if (yPos > 270) {
-        doc.addPage();
-        yPos = 20;
-      }
-      doc.text(item.product_name.substring(0, 35), 20, yPos);
-      doc.text(item.quantity.toString(), 120, yPos);
-      doc.text(`Rs. ${item.unit_price.toFixed(2)}`, 145, yPos);
-      doc.text(`Rs. ${item.subtotal.toFixed(2)}`, 170, yPos);
-      yPos += 7;
-    });
-    
-    // Total
-    yPos += 5;
-    doc.setFont("helvetica", "normal")
-    doc.text(`Delivery Charge: Rs. ${500}`, 120, yPos);
-    yPos += 5;
-    doc.setFont("helvetica", "bold");
-    doc.text(`TOTAL AMOUNT: Rs. ${order.total_amount.toFixed(2)}`, 120, yPos);
-    
-    // Payment Info
-    yPos += 10;
-    doc.setFontSize(12);
-    doc.text("PAYMENT DETAILS", 20, yPos);
-    yPos += 8;
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.text(`Method: ${order.payment_method === 'cod' ? 'Cash on Delivery' : 'Bank Transfer'}`, 20, yPos);
-    yPos += 7;
-    doc.text(`Status: ${order.payment_status.toUpperCase()}`, 20, yPos);
-    if (order.transaction_code) {
-      yPos += 7;
-      doc.text(`Transaction Ref: ${order.transaction_code}`, 20, yPos);
-    }
-    
-    // Footer
-    doc.setFontSize(8);
-    doc.setTextColor(128, 128, 128);
-    doc.text("Thank you for your order!", pageWidth / 2, 285, { align: "center" });
-    
-    // Save
-    doc.save(`order-${order.id.substring(0, 8)}.pdf`);
-    toast.success("PDF downloaded successfully!");
-  };
-
-  const generateAllOrdersPDF = () => {
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.width;
+    doc.text("AJAY BHADA CENTER", pageWidth / 2, 15, { align: "center" });
     
     doc.setFontSize(18);
-    doc.setFont("helvetica", "bold");
-    doc.text("AJAY BHADA CENTER", pageWidth / 2, 20, { align: "center" });
-    doc.text("ALL ORDERS REPORT", pageWidth / 2, 15, { align: "center" });
-
-    doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
-    doc.text(`Generated on: ${format(new Date(), "PPP")}`, pageWidth / 2, 28, { align: "center" });
-    doc.text(`Total Orders: ${orders.length}`, pageWidth / 2, 35, { align: "center" });
+    doc.text("Order Receipt", pageWidth / 2, 25, { align: "center" });
     
-    let yPos = 45;
+    // Reset text color
+    doc.setTextColor(0, 0, 0);
     
-    orders.forEach((order, index) => {
+    // Order info box
+    let yPos = 35;
+    doc.setFillColor(lightGray[0], lightGray[1], lightGray[2]);
+    doc.roundedRect(20, yPos, pageWidth - 40, 20, 2, 2, 'F');
+    
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+    doc.text(`Order ID: ${order.id}`, 25, yPos + 7);
+    doc.text(`Date: ${format(new Date(order.created_at), "PPP, h:mm:ss a")}`, 25, yPos + 14);
+    
+    // Status badge
+    const statusX = pageWidth - 45;
+    const statusY = yPos + 5;
+    const statusColor = order.order_status === 'delivered' ? [46, 204, 113] : 
+                        order.order_status === 'pending' ? [241, 196, 15] : 
+                        [52, 152, 219];
+    
+    doc.setFillColor(statusColor[0], statusColor[1], statusColor[2]);
+    doc.roundedRect(statusX, statusY, 35, 8, 1, 1, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "bold");
+    doc.text(order.order_status.toUpperCase(), statusX + 17.5, statusY + 5.5, { align: "center" });
+    
+    // Reset colors
+    doc.setTextColor(0, 0, 0);
+    
+    // Two column layout for customer and shipping
+    yPos = 63;
+    
+    // Customer Details - Left Column
+    doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.rect(20, yPos, 2, 6, 'F');
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text("CUSTOMER DETAILS", 25, yPos + 4);
+    
+    yPos += 10;
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.setFont("helvetica", "bold");
+    doc.text("Name:", 25, yPos);
+    doc.setFont("helvetica", "normal");
+    doc.text(order.profiles?.full_name || 'N/A', 45, yPos);
+    
+    yPos += 6;
+    doc.setFont("helvetica", "bold");
+    doc.text("Email:", 25, yPos);
+    doc.setFont("helvetica", "normal");
+    doc.text(order.profiles?.email || 'N/A', 45, yPos);
+    
+    yPos += 6;
+    doc.setFont("helvetica", "bold");
+    doc.text("Phone:", 25, yPos);
+    doc.setFont("helvetica", "normal");
+    doc.text(order.phone, 45, yPos);
+    
+    // Shipping Address - Right Column
+    const rightColX = pageWidth / 2 + 10;
+    yPos = 63;
+    
+    doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.rect(rightColX, yPos, 2, 6, 'F');
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text("SHIPPING ADDRESS", rightColX + 5, yPos + 4);
+    
+    yPos += 10;
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    const addressLines = doc.splitTextToSize(order.shipping_address, 75);
+    doc.text(addressLines, rightColX + 5, yPos);
+    
+    // Order Items Table
+    yPos = 95;
+    doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.rect(20, yPos, 2, 6, 'F');
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text("ORDER ITEMS", 25, yPos + 4);
+    
+    yPos += 12;
+    
+    // Table header with background
+    doc.setFillColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+    doc.rect(20, yPos - 5, pageWidth - 40, 8, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "bold");
+    doc.text("Product", 25, yPos);
+    doc.text("Qty", 125, yPos, { align: "center" });
+    doc.text("Price", 150, yPos, { align: "right" });
+    doc.text("Total", pageWidth - 25, yPos, { align: "right" });
+    
+    doc.setTextColor(0, 0, 0);
+    yPos += 8;
+    
+    // Table rows with alternating background
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    
+    order.order_items?.forEach((item, index) => {
       if (yPos > 250) {
         doc.addPage();
         yPos = 20;
       }
       
-      // Order header
-      doc.setFontSize(11);
-      doc.setFont("helvetica", "bold");
-      doc.text(`Order #${index + 1}: ${order.id.substring(0, 8)}`, 20, yPos);
+      // Alternating row background
+      if (index % 2 === 0) {
+        doc.setFillColor(250, 250, 250);
+        doc.rect(20, yPos - 5, pageWidth - 40, 7, 'F');
+      }
+      
+      const productName = item.product_name.length > 45 ? 
+                        item.product_name.substring(0, 42) + '...' : 
+                        item.product_name;
+      
+      doc.text(productName, 25, yPos);
+      doc.text(item.quantity.toString(), 125, yPos, { align: "center" });
+      doc.text(`Rs. ${item.unit_price.toFixed(2)}`, 150, yPos, { align: "right" });
+      doc.text(`Rs. ${item.subtotal.toFixed(2)}`, pageWidth - 25, yPos, { align: "right" });
       yPos += 7;
-      
-      doc.setFontSize(9);
-      doc.setFont("helvetica", "normal");
-      doc.text(`Customer: ${order.profiles?.full_name || 'N/A'}`, 20, yPos);
-      doc.text(`Date: ${format(new Date(order.created_at), "PP")}`, 120, yPos);
-      yPos += 6;
-      
-      doc.text(`Phone: ${order.phone}`, 20, yPos);
-      doc.text(`Amount: Rs.${order.total_amount.toFixed(2)}`, 120, yPos);
-      yPos += 6;
-      
-      doc.text(`Status: ${order.order_status}`, 20, yPos);
-      doc.text(`Payment: ${order.payment_status}`, 120, yPos);
-      yPos += 10;
-      
-      // Separator
-      doc.setDrawColor(200, 200, 200);
-      doc.line(20, yPos, pageWidth - 20, yPos);
-      yPos += 8;
     });
     
-    doc.save(`all-orders-${format(new Date(), "yyyy-MM-dd")}.pdf`);
-    toast.success("All orders PDF downloaded successfully!");
+    // Summary section
+    yPos += 5;
+    doc.setDrawColor(200, 200, 200);
+    doc.line(20, yPos, pageWidth - 20, yPos);
+    yPos += 8;
+    
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.text("Delivery Charge:", pageWidth - 70, yPos);
+    doc.text("Rs. 500.00", pageWidth - 25, yPos, { align: "right" });
+    
+    yPos += 8;
+    doc.setFillColor(lightGray[0], lightGray[1], lightGray[2]);
+    doc.rect(pageWidth - 75, yPos - 5, 65, 10, 'F');
+    
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text("TOTAL AMOUNT:", pageWidth - 70, yPos + 2);
+    doc.setFontSize(12);
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.text(`Rs. ${order.total_amount.toFixed(2)}`, pageWidth - 14, yPos + 2, { align: "right" });
+    
+    doc.setTextColor(0, 0, 0);
+    
+    // Payment Details
+    yPos += 18;
+    doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.rect(20, yPos, 2, 6, 'F');
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text("PAYMENT DETAILS", 25, yPos + 4);
+    
+    yPos += 10;
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    
+    doc.setFont("helvetica", "bold");
+    doc.text("Method:", 25, yPos);
+    doc.setFont("helvetica", "normal");
+    doc.text(order.payment_method === 'cod' ? 'Cash on Delivery' : 'Bank Transfer', 50, yPos);
+    
+    yPos += 6;
+    doc.setFont("helvetica", "bold");
+    doc.text("Status:", 25, yPos);
+    doc.setFont("helvetica", "normal");
+    
+    const paymentStatusColor = order.payment_status === 'paid' ? [46, 204, 113] : [231, 76, 60];
+    doc.setTextColor(paymentStatusColor[0], paymentStatusColor[1], paymentStatusColor[2]);
+    doc.text(order.payment_status.toUpperCase(), 50, yPos);
+    doc.setTextColor(0, 0, 0);
+    
+    if (order.transaction_code) {
+      yPos += 6;
+      doc.setFont("helvetica", "bold");
+      doc.text("Transaction Ref:", 25, yPos);
+      doc.setFont("helvetica", "normal");
+      doc.text(order.transaction_code, 60, yPos);
+    }
+    
+    // Footer with border
+    const footerY = pageHeight - 20;
+    doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.setLineWidth(0.5);
+    doc.line(20, footerY, pageWidth - 20, footerY);
+    
+    doc.setFontSize(8);
+    doc.setTextColor(128, 128, 128);
+    doc.setFont("helvetica", "italic");
+    doc.text("Thank you for your order!", pageWidth / 2, footerY + 6, { align: "center" });
+    doc.setFont("helvetica", "normal");
+    doc.text("For any queries, please contact our customer support", pageWidth / 2, footerY + 11, { align: "center" });
+    
+    // Save
+    doc.save(`order-${order.id.substring(0, 8)}-${format(new Date(), "yyyy-MM-dd-HHmmss")}.pdf`);
+    toast.success("PDF downloaded successfully!");
   };
+/******************************New logic end****************************************** */
+  const generateAllOrdersPDF = () => {
+  const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.width;
+  const pageHeight = doc.internal.pageSize.height;
+  
+  // Color scheme
+  const primaryColor = [41, 128, 185];
+  const secondaryColor = [52, 73, 94];
+  const lightGray = [236, 240, 241];
+  const accentColor = [149, 165, 166];
+  
+  // Header with colored background
+  doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.rect(0, 0, pageWidth, 35, 'F');
+  
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(24);
+  doc.setFont("helvetica", "bold");
+  doc.text("AJAY BHADA CENTER", pageWidth / 2, 15, { align: "center" });
+  
+  doc.setFontSize(15);
+  doc.setFont("helvetica", "normal");
+  doc.text("ORDER SUMMARY", pageWidth / 2, 25, { align: "center" });
+  
+  doc.setFontSize(9);
+  doc.text(`Generated on: ${format(new Date(), "PPP, h:mm:ss a")}`, pageWidth / 2, 33, { align: "center" });
+  
+  // Reset text color
+  doc.setTextColor(0, 0, 0);
+  
+  // Summary box
+  let yPos = 48;
+  doc.setFillColor(lightGray[0], lightGray[1], lightGray[2]);
+  doc.roundedRect(20, yPos, pageWidth - 40, 16, 2, 2, 'F');
+  
+  // Calculate totals
+  const totalRevenue = orders.reduce((sum, order) => sum + order.total_amount, 0);
+  const pendingOrders = orders.filter(o => o.order_status === 'pending').length;
+  const completedOrders = orders.filter(o => o.order_status === 'delivered').length;
+  
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+  
+  // Summary statistics
+  doc.text(`Total Orders: ${orders.length}`, 25, yPos + 6);
+  doc.text(`Total Revenue: Rs. ${totalRevenue.toFixed(2)}`, 25, yPos + 12);
+  
+  doc.text(`Completed: ${completedOrders}`, 110, yPos + 6);
+  doc.text(`Pending: ${pendingOrders}`, 110, yPos + 12);
+  
+  const processingOrders = orders.length - pendingOrders - completedOrders;
+  doc.text(`Processing: ${processingOrders}`, 160, yPos + 6);
+  
+  doc.setTextColor(0, 0, 0);
+  
+  yPos = 72;
+  
+  // Table header
+  doc.setFillColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+  doc.rect(20, yPos, pageWidth - 40, 9, 'F');
+  
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "bold");
+  doc.text("#", 23, yPos + 6);
+  doc.text("Order ID", 32, yPos + 6);
+  doc.text("Customer", 65, yPos + 6);
+  doc.text("Date", 110, yPos + 6);
+  doc.text("Amount", 140, yPos + 6);
+  doc.text("Status", 168, yPos + 6);
+  
+  doc.setTextColor(0, 0, 0);
+  yPos += 12;
+  
+  // Function to add page header for continuation pages
+  const addPageHeader = () => {
+    doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.rect(0, 0, pageWidth, 25, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.text("AJAY BHADA CENTER", pageWidth / 2, 12, { align: "center" });
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text("All Orders Report (Continued)", pageWidth / 2, 19, { align: "center" });
+    
+    doc.setTextColor(0, 0, 0);
+    
+    // Table header
+    const headerY = 30;
+    doc.setFillColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
+    doc.rect(20, headerY, pageWidth - 40, 9, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "bold");
+    doc.text("#", 23, headerY + 6);
+    doc.text("Order ID", 32, headerY + 6);
+    doc.text("Customer", 65, headerY + 6);
+    doc.text("Date", 110, headerY + 6);
+    doc.text("Amount", 140, headerY + 6);
+    doc.text("Status", 168, headerY + 6);
+    
+    doc.setTextColor(0, 0, 0);
+    
+    return headerY + 12;
+  };
+  
+  // Orders list
+  orders.forEach((order, index) => {
+    if (yPos > 270) {
+      doc.addPage();
+      yPos = addPageHeader();
+    }
+    
+    // Alternating row background
+    if (index % 2 === 0) {
+      doc.setFillColor(250, 250, 250);
+      doc.rect(20, yPos - 4, pageWidth - 40, 20, 'F');
+    }
+    
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    
+    // Order number
+    doc.setFont("helvetica", "bold");
+    doc.text(`${index + 1}`, 23, yPos);
+    
+    // Order ID
+    doc.setFont("helvetica", "normal");
+    doc.text(order.id.substring(0, 8).toUpperCase(), 32, yPos);
+    
+    // Customer name (truncate if too long)
+    const customerName = order.profiles?.full_name || 'N/A';
+    const truncatedName = customerName.length > 18 ? 
+                          customerName.substring(0, 15) + '...' : 
+                          customerName;
+    doc.text(truncatedName, 65, yPos);
+    
+    // Date
+    doc.text(format(new Date(order.created_at), "PP"), 110, yPos);
+    
+    // Amount
+    doc.setFont("helvetica", "bold");
+    doc.text(`Rs. ${order.total_amount.toFixed(2)}`, 140, yPos);
+    doc.setFont("helvetica", "normal");
+    
+    // Status badge
+    const statusX = 168;
+    const statusY = yPos - 3;
+    const statusColor = order.order_status === 'delivered' ? [46, 204, 113] : 
+                        order.order_status === 'pending' ? [241, 196, 15] : 
+                        [52, 152, 219];
+    
+    doc.setFillColor(statusColor[0], statusColor[1], statusColor[2]);
+    doc.roundedRect(statusX, statusY, 28, 6, 1, 1, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(7);
+    doc.setFont("helvetica", "bold");
+    doc.text(order.order_status.toUpperCase(), statusX + 14, statusY + 4, { align: "center" });
+    
+    doc.setTextColor(0, 0, 0);
+    
+    // Additional details row
+    yPos += 6;
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(accentColor[0], accentColor[1], accentColor[2]);
+    
+    doc.text(`Phone: ${order.phone}`, 32, yPos);
+    
+    // Payment status
+    const paymentStatusText = `Payment: ${order.payment_status}`;
+    const paymentColor = order.payment_status === 'paid' ? [46, 204, 113] : [231, 76, 60];
+    doc.setTextColor(paymentColor[0], paymentColor[1], paymentColor[2]);
+    doc.text(paymentStatusText, 110, yPos);
+    
+    doc.setTextColor(0, 0, 0);
+    
+    yPos += 9;
+    
+    // Thin separator line
+    doc.setDrawColor(220, 220, 220);
+    doc.setLineWidth(0.3);
+    doc.line(20, yPos, pageWidth - 20, yPos);
+    yPos += 5;
+  });
+  
+  // Footer on last page
+  const footerY = pageHeight - 15;
+  doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.setLineWidth(0.5);
+  doc.line(20, footerY, pageWidth - 20, footerY);
+  
+  doc.setFontSize(8);
+  doc.setTextColor(128, 128, 128);
+  doc.setFont("helvetica", "italic");
+  doc.text("End of Report", pageWidth / 2, footerY + 6, { align: "center" });
+  doc.setFont("helvetica", "normal");
+  doc.text(`Page ${doc.internal.pages.length - 1}`, pageWidth / 2, footerY + 10, { align: "center" });
+  
+  doc.save(`all-orders-${format(new Date(), "yyyy-MM-dd-HHmmss")}.pdf`);
+  toast.success("All orders PDF downloaded successfully!");
+};
 
   return (
     <div className="p-4 sm:p-6 md:p-8">
