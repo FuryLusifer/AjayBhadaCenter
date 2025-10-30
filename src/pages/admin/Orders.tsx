@@ -594,7 +594,7 @@ const Orders = () => {
     doc.setFont("helvetica", "bold");
     doc.text("Method:", 25, yPos);
     doc.setFont("helvetica", "normal");
-    doc.text(order.payment_method === 'cod' ? 'Cash on Delivery' : 'Bank Transfer', 50, yPos);
+    doc.text(order.payment_method === 'cod' ? 'Cash on Delivery' : 'Bank Transfer', 40, yPos);
     
     yPos += 6;
     doc.setFont("helvetica", "bold");
@@ -603,7 +603,7 @@ const Orders = () => {
     
     const paymentStatusColor = order.payment_status === 'paid' ? [46, 204, 113] : [231, 76, 60];
     doc.setTextColor(paymentStatusColor[0], paymentStatusColor[1], paymentStatusColor[2]);
-    doc.text(order.payment_status.toUpperCase(), 50, yPos);
+    doc.text(order.payment_status.toUpperCase(), 40, yPos);
     doc.setTextColor(0, 0, 0);
     
     if (order.transaction_code) {
@@ -611,7 +611,7 @@ const Orders = () => {
       doc.setFont("helvetica", "bold");
       doc.text("Transaction Ref:", 25, yPos);
       doc.setFont("helvetica", "normal");
-      doc.text(order.transaction_code, 60, yPos);
+      doc.text(order.transaction_code, 52, yPos);
     }
     
     // Footer with border
@@ -631,7 +631,7 @@ const Orders = () => {
     doc.save(`order-${order.id.substring(0, 8)}-${format(new Date(), "yyyy-MM-dd-HHmmss")}.pdf`);
     toast.success("PDF downloaded successfully!");
   };
-/******************************New logic end****************************************** */
+
   const generateAllOrdersPDF = () => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.width;
