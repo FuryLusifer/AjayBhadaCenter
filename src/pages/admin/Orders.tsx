@@ -305,10 +305,10 @@ const Orders = () => {
     // Header
     doc.setFontSize(20);
     doc.setFont("helvetica", "bold");
-    doc.text("AJAY BHADA CENTER", pageWidth / 2, 25, { align: "center" });
+    doc.text("AJAY BHADA CENTER", pageWidth / 2, 18, { align: "center" });
     doc.setFontSize(15);
     doc.setFont("helvetica", "normal");
-    doc.text("Order Receipt", pageWidth / 2, 18, { align: "center" });
+    doc.text("Order Receipt", pageWidth / 2, 25, { align: "center" });
 
     // Order Info
     doc.setFontSize(10);
@@ -371,8 +371,8 @@ const Orders = () => {
     // Total
     yPos += 5;
     doc.setFont("helvetica", "normal")
-    doc.text(`Delivery Charge: Rs. ${order.total_amount.toFixed(2)}`, 120, yPos);
-    yPos += 10;
+    doc.text(`Delivery Charge: Rs. ${500}`, 120, yPos);
+    yPos += 5;
     doc.setFont("helvetica", "bold");
     doc.text(`TOTAL AMOUNT: Rs. ${order.total_amount.toFixed(2)}`, 120, yPos);
     
