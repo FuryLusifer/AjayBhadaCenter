@@ -185,7 +185,8 @@
 
 // export default Orders;
 
-//******** new version******** */
+//****************************** new version********************************* */
+
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -304,8 +305,9 @@ const Orders = () => {
     // Header
     doc.setFontSize(20);
     doc.setFont("helvetica", "bold");
-    doc.text("ORDER RECEIPT", pageWidth / 2, 20, { align: "center" });
-    
+    doc.text("AJAY BHADA CENTER", pageWidth / 2, 20, { align: "center" });
+    doc.text("Order Receipt", pageWidth / 2, 15, { align: "center" });
+
     // Order Info
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
@@ -359,15 +361,17 @@ const Orders = () => {
       }
       doc.text(item.product_name.substring(0, 35), 20, yPos);
       doc.text(item.quantity.toString(), 120, yPos);
-      doc.text(`Rs.${item.unit_price.toFixed(2)}`, 145, yPos);
-      doc.text(`Rs.${item.subtotal.toFixed(2)}`, 170, yPos);
+      doc.text(`Rs. ${item.unit_price.toFixed(2)}`, 145, yPos);
+      doc.text(`Rs. ${item.subtotal.toFixed(2)}`, 170, yPos);
       yPos += 7;
     });
     
     // Total
     yPos += 5;
+    doc.setFont("helvetica", "normal")
+    doc.text(`Delivery Charge: Rs. ${order.total_amount.toFixed(2)}`, 120, yPos);
     doc.setFont("helvetica", "bold");
-    doc.text(`TOTAL AMOUNT: Rs.${order.total_amount.toFixed(2)}`, 120, yPos);
+    doc.text(`TOTAL AMOUNT: Rs. ${order.total_amount.toFixed(2)}`, 120, yPos);
     
     // Payment Info
     yPos += 10;
@@ -400,8 +404,9 @@ const Orders = () => {
     
     doc.setFontSize(18);
     doc.setFont("helvetica", "bold");
-    doc.text("ALL ORDERS REPORT", pageWidth / 2, 20, { align: "center" });
-    
+    doc.text("AJAY BHADA CENTER", pageWidth / 2, 20, { align: "center" });
+    doc.text("ALL ORDERS REPORT", pageWidth / 2, 15, { align: "center" });
+
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
     doc.text(`Generated on: ${format(new Date(), "PPP")}`, pageWidth / 2, 28, { align: "center" });
