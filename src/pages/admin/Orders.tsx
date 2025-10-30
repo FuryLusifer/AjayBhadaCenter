@@ -370,6 +370,7 @@ const Orders = () => {
     yPos += 5;
     doc.setFont("helvetica", "normal")
     doc.text(`Delivery Charge: Rs. ${order.total_amount.toFixed(2)}`, 120, yPos);
+    yPos += 5;
     doc.setFont("helvetica", "bold");
     doc.text(`TOTAL AMOUNT: Rs. ${order.total_amount.toFixed(2)}`, 120, yPos);
     
