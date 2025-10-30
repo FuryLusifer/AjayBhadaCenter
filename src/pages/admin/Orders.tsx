@@ -305,8 +305,10 @@ const Orders = () => {
     // Header
     doc.setFontSize(20);
     doc.setFont("helvetica", "bold");
-    doc.text("AJAY BHADA CENTER", pageWidth / 2, 20, { align: "center" });
-    doc.text("Order Receipt", pageWidth / 2, 15, { align: "center" });
+    doc.text("AJAY BHADA CENTER", pageWidth / 2, 25, { align: "center" });
+    doc.setFontSize(15);
+    doc.setFont("helvetica", "normal");
+    doc.text("Order Receipt", pageWidth / 2, 18, { align: "center" });
 
     // Order Info
     doc.setFontSize(10);
