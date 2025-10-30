@@ -227,14 +227,14 @@ const Checkout = () => {
                   <div className="mt-6 p-4 bg-muted rounded-lg">
                     <h3 className="font-semibold mb-3">Bank Transfer Details</h3>
                     <div className="space-y-2 text-sm mb-4">
-                      <p><strong>Bank Name:</strong> Sample Bank</p>
+                      <p><strong>Bank Name:</strong> Nabil Bank</p>
                       <p><strong>Account Number:</strong> 1234567890</p>
                       <p><strong>Account Name:</strong> Ajay Bhada Center</p>
-                      <p><strong>IFSC Code:</strong> SBIN0001234</p>
+                      <p><strong>SWIFT Code:</strong> NARBNPKA</p>
                     </div>
                     <div className="mb-4">
                       <p className="text-sm font-semibold mb-2">Or scan QR code:</p>
-                      <img src={bankQRCode} alt="Payment QR Code" className="w-48 h-48 border rounded" />
+                      <img src={bankQRCode} alt="Payment QR Code" className="w-90 h-90 border rounded" />
                     </div>
                     <FormField
                       control={form.control}
