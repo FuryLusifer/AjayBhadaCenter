@@ -227,9 +227,10 @@ const Checkout = () => {
                   <div className="mt-6 p-4 bg-muted rounded-lg">
                     <h3 className="font-semibold mb-3">Bank Transfer Details</h3>
                     <div className="space-y-2 text-sm mb-4">
-                      <p><strong>Bank Name:</strong> Nabil Bank</p>
-                      <p><strong>Account Number:</strong> 1234567890</p>
                       <p><strong>Account Name:</strong> Ajay Bhada Center</p>
+                      <p><strong>Account Number:</strong> 1234567890</p>
+                      <p><strong>Bank Name:</strong> Nabil Bank</p>
+                      <p><strong>Branch:</strong> Hetauda Branch</p>
                       <p><strong>SWIFT Code:</strong> NARBNPKA</p>
                     </div>
                     <div className="mb-4">
