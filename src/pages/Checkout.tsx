@@ -3,9 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useCart } from "@/hooks/useCart";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,8 +12,9 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import bankQRCode1 from "@/assets/bank-qr-code.png";
-import bankQRCode2 from "@/assets/nabil_bank_qr.jpg";
+import bankQRCode from "@/assets/bank-qr-code.png";
+import { compressImage } from "@/lib/imageCompression";
+import { Upload } from "lucide-react";
 
 const checkoutSchema = z.object({
   phone: z.string()
@@ -28,20 +27,20 @@ const checkoutSchema = z.object({
     .refine((val) => val.replace(/\s/g, '').length >= 10, {
       message: "Address must contain meaningful content"
     }),
-  paymentMethod: z.enum(["cod", "bank_transfer"]),
-  transactionCode: z.string().optional(),
+  paymentScreenshot: z.instanceof(File).optional(),
 }).refine((data) => {
-  if (data.paymentMethod === "bank_transfer" && !data.transactionCode?.trim()) {
+  if (!data.paymentScreenshot) {
     return false;
   }
   return true;
 }, {
-  message: "Transaction code is required for bank transfers",
-  path: ["transactionCode"],
+  message: "Payment screenshot is required",
+  path: ["paymentScreenshot"],
 });
 
 const Checkout = () => {
   const [isProcessing, setIsProcessing] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const { items, clearCart } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -51,23 +50,35 @@ const Checkout = () => {
     defaultValues: {
       phone: "",
       address: "",
-      paymentMethod: "cod",
-      transactionCode: "",
+      paymentScreenshot: undefined,
     },
   });
 
-  const paymentMethod = form.watch("paymentMethod");
-  //const total = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
   const subtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
-  const getDeliveryCharge = (amount: number): number => {
+  
+  // Calculate delivery charges based on subtotal
+  const calculateDeliveryCharge = (amount: number) => {
     if (amount <= 1000) return 150;
-    if (amount <= 5000) return 200; // covers >1000 up to 5000
+    if (amount <= 5000) return 200;
     return 300; // >5000
   };
+  
+  const deliveryCharge = calculateDeliveryCharge(subtotal);
+  const total = subtotal + deliveryCharge;
 
-  const deliverycharge = getDeliveryCharge(subtotal);
-  const tax = subtotal * 0.0; // No tax for simplicity
-  const total = subtotal + tax + deliverycharge;
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      try {
+        const compressed = await compressImage(file);
+        setUploadedFile(compressed);
+        form.setValue("paymentScreenshot", compressed);
+        form.clearErrors("paymentScreenshot");
+      } catch (error) {
+        toast.error("Failed to compress image");
+      }
+    }
+  };
 
   const onSubmit = async (values: z.infer<typeof checkoutSchema>) => {
     if (!user) {
@@ -84,18 +95,39 @@ const Checkout = () => {
     setIsProcessing(true);
 
     try {
+      let screenshotUrl = null;
+
+      // Upload screenshot to Supabase storage
+      if (uploadedFile) {
+        const fileExt = uploadedFile.name.split('.').pop();
+        const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+        const filePath = `payment-screenshots/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('product-images')
+          .upload(filePath, uploadedFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('product-images')
+          .getPublicUrl(filePath);
+
+        screenshotUrl = publicUrl;
+      }
+
       // Create order
       const { data: order, error: orderError } = await supabase
         .from("orders")
         .insert({
           user_id: user.id,
           total_amount: total,
-          payment_method: values.paymentMethod,
-          payment_status: values.paymentMethod === "bank_transfer" ? "pending" : "confirmed",
+          payment_method: "bank_transfer",
+          payment_status: "pending",
           order_status: "pending",
           shipping_address: values.address,
           phone: values.phone,
-          transaction_code: values.transactionCode || null,
+          transaction_screenshot_url: screenshotUrl,
         })
         .select()
         .single();
@@ -170,7 +202,7 @@ const Checkout = () => {
                       <FormItem>
                         <FormLabel>Phone Number</FormLabel>
                         <FormControl>
-                          <Input placeholder="+1234567890" {...field} />
+                          <Input placeholder="+977 xxxxxxxxxx" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -197,80 +229,49 @@ const Checkout = () => {
               </Card>
 
               <Card className="p-6">
-                <h2 className="text-2xl font-bold mb-4">Payment Method</h2>
-                <FormField
-                  control={form.control}
-                  name="paymentMethod"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <RadioGroup
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                          className="space-y-4"
-                        >
-                          <div className="flex items-center space-x-2 border rounded-lg p-4">
-                            <RadioGroupItem value="cod" id="cod" />
-                            <Label htmlFor="cod" className="flex-1 cursor-pointer">
-                              <div className="font-semibold">Cash on Delivery</div>
-                              <div className="text-sm text-muted-foreground">
-                                Pay when you receive your order
-                              </div>
-                            </Label>
-                          </div>
-                          <div className="flex items-center space-x-2 border rounded-lg p-4">
-                            <RadioGroupItem value="bank_transfer" id="bank_transfer" />
-                            <Label htmlFor="bank_transfer" className="flex-1 cursor-pointer">
-                              <div className="font-semibold">Bank Transfer</div>
-                              <div className="text-sm text-muted-foreground">
-                                Transfer to our bank account
-                              </div>
-                            </Label>
-                          </div>
-                        </RadioGroup>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {paymentMethod === "bank_transfer" && (
-                  <div className="mt-6 p-4 bg-muted rounded-lg">
-                    <h3 className="font-semibold mb-3">Bank Transfer Details</h3>
-                    <div className="space-y-2 text-sm mb-4">
-                      <p><strong>Account Name:</strong> Ajay Bhada Center</p>
-                      <p><strong>Account Number:</strong> 02301017504873</p>
-                      <p><strong>Bank Name:</strong> Nabil Bank</p>
-                      <p><strong>Branch:</strong> Hetauda Branch</p>
-                      <p><strong>SWIFT Code:</strong> NARBNPKA</p>
-                    </div>
-                    {/* <div className="mb-4">
-                      <p className="text-sm font-semibold mb-2">Or scan QR code:</p>
-                      <img src={bankQRCode1} alt="Payment QR Code" className="w-90 h-90 border rounded" />
-                      <img src={bankQRCode2} alt="Payment QR Code" className="w-20 h-20 border rounded" />
-                    </div> */}
-                    <div className="mb-4">
-                      <p className="text-sm font-semibold mb-2">Or scan QR code:</p>
-                      <div className="flex gap-4 items-center">
-                        <img src={bankQRCode1} alt="Payment QR Code" className="w-90 h-90 border rounded" />
-                        <img src={bankQRCode2} alt="Payment QR Code" className="w-65 h-60 border rounded" />
-                      </div>
-                    </div>
-                    <FormField
-                      control={form.control}
-                      name="transactionCode"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Transaction/Reference Code</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Enter transaction reference number" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                <h2 className="text-2xl font-bold mb-4">Payment Information</h2>
+                <div className="p-4 bg-muted rounded-lg">
+                  <h3 className="font-semibold mb-3">Bank Transfer Details</h3>
+                  <div className="space-y-2 text-sm mb-4">
+                    <p><strong>Account Name:</strong> Ajay Bhada Center</p>
+                    <p><strong>Account Number:</strong> 02301017504873</p>
+                    <p><strong>Bank Name:</strong> Nabil Bank Limited</p>
+                    <p><strong>Branch:</strong> Hetauda Branch</p>
+                    <p><strong>SWIFT Code:</strong> NARBNPKA</p>
                   </div>
-                )}
+                  <div className="mb-4">
+                    <p className="text-sm font-semibold mb-2">Or scan QR code:</p>
+                    <img src={bankQRCode} alt="Payment QR Code" className="w-90 h-90 border rounded" />
+                  </div>
+                  <FormField
+                    control={form.control}
+                    name="paymentScreenshot"
+                    render={() => (
+                      <FormItem>
+                        <FormLabel>Upload Payment Screenshot *</FormLabel>
+                        <FormControl>
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <Input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleFileChange}
+                                className="cursor-pointer"
+                              />
+                              <Upload className="h-5 w-5 text-muted-foreground" />
+                            </div>
+                            {uploadedFile && (
+                              <p className="text-sm text-green-600">
+                                ✓ Image uploaded and compressed ({(uploadedFile.size / 1024).toFixed(2)} KB)
+                              </p>
+                            )}
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </Card>
 
               <Button type="submit" size="lg" className="w-full" disabled={isProcessing}>
@@ -291,29 +292,25 @@ const Checkout = () => {
                     {item.product.name} x {item.quantity}
                   </span>
                   <span className="font-semibold">
-                    Rs.{(item.product.price * item.quantity).toFixed(2)}
+                    Rs. {(item.product.price * item.quantity).toFixed(2)}
                   </span>
                 </div>
               ))}
             </div>
-            {/* <div className="border-t pt-4 flex justify-between text-lg font-bold">
-              <span>Total</span>
-              <span className="text-primary">Rs.{total.toFixed(2)}</span>
-            </div> */}
             <div className="border-t pt-3 space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Subtotal</span>
-              <span className="font-medium">Rs. {subtotal.toFixed(2)}</span>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Subtotal</span>
+                <span className="font-medium">Rs. {subtotal.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Delivery Charge</span>
+                <span className="font-medium">Rs. {deliveryCharge.toFixed(2)}</span>
+              </div>
+              <div className="border-t pt-2 flex justify-between text-lg font-bold">
+                <span>Total</span>
+                <span className="text-primary">Rs. {total.toFixed(2)}</span>
+              </div>
             </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Delivery Charge</span>
-              <span className="font-medium">Rs. {deliverycharge.toFixed(2)}</span>
-            </div>
-            <div className="border-t pt-2 flex justify-between text-lg font-bold">
-              <span>Total</span>
-              <span className="text-primary">Rs. {total.toFixed(2)}</span>
-            </div>
-          </div>
           </Card>
         </div>
       </div>

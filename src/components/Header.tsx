@@ -28,8 +28,11 @@ const Header = () => {
     if (searchQuery.trim()) {
       navigate(`/products?search=${encodeURIComponent(searchQuery)}`);
       setSearchQuery("");
+      setIsMenuOpen(false); // Close mobile menu after search
     }
   };
+
+  const closeMenu = () => setIsMenuOpen(false);
 
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
@@ -144,19 +147,19 @@ const Header = () => {
               </div>
             </form>
             <nav className="flex flex-col space-y-2">
-              <Link to="/" className="px-2 py-2 hover:bg-accent rounded-md transition-colors">
+              <Link to="/" className="px-2 py-2 hover:bg-accent rounded-md transition-colors" onClick={closeMenu}>
                 Home
               </Link>
-              <Link to="/products" className="px-2 py-2 hover:bg-accent rounded-md transition-colors">
+              <Link to="/products" className="px-2 py-2 hover:bg-accent rounded-md transition-colors" onClick={closeMenu}>
                 Products
               </Link>
-              <Link to="/about" className="px-2 py-2 hover:bg-accent rounded-md transition-colors">
+              <Link to="/about" className="px-2 py-2 hover:bg-accent rounded-md transition-colors" onClick={closeMenu}>
                 About
               </Link>
-              <Link to="/contact" className="px-2 py-2 hover:bg-accent rounded-md transition-colors">
+              <Link to="/contact" className="px-2 py-2 hover:bg-accent rounded-md transition-colors" onClick={closeMenu}>
                 Contact
               </Link>
-              <Link to="/cart" className="px-2 py-2 hover:bg-accent rounded-md transition-colors flex items-center justify-between">
+              <Link to="/cart" className="px-2 py-2 hover:bg-accent rounded-md transition-colors flex items-center justify-between" onClick={closeMenu}>
                 <span>Cart</span>
                 {cartItemsCount > 0 && (
                   <span className="h-5 w-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
@@ -166,26 +169,29 @@ const Header = () => {
               </Link>
               {user ? (
                 <>
-                  <Link to="/profile" className="px-2 py-2 hover:bg-accent rounded-md transition-colors">
+                  <Link to="/profile" className="px-2 py-2 hover:bg-accent rounded-md transition-colors" onClick={closeMenu}>
                     Profile
                   </Link>
-                  <Link to="/orders" className="px-2 py-2 hover:bg-accent rounded-md transition-colors">
+                  <Link to="/orders" className="px-2 py-2 hover:bg-accent rounded-md transition-colors" onClick={closeMenu}>
                     My Orders
                   </Link>
                   {isAdmin && (
-                    <Link to="/admin" className="px-2 py-2 hover:bg-accent rounded-md transition-colors">
+                    <Link to="/admin" className="px-2 py-2 hover:bg-accent rounded-md transition-colors" onClick={closeMenu}>
                       Admin Panel
                     </Link>
                   )}
                   <button
-                    onClick={signOut}
+                    onClick={() => {
+                      signOut();
+                      closeMenu();
+                    }}
                     className="px-2 py-2 hover:bg-accent rounded-md transition-colors text-left"
                   >
                     Logout
                   </button>
                 </>
               ) : (
-                <Link to="/auth" className="px-2 py-2">
+                <Link to="/auth" className="px-2 py-2" onClick={closeMenu}>
                   <Button className="w-full">Login</Button>
                 </Link>
               )}

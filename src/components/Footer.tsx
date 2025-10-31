@@ -64,9 +64,9 @@ const Footer = () => {
                 </a> */}
               </li>
               <li>
-                <a href="/return" className="text-muted-foreground hover:text-primary transition-colors">
+                <Link to="/returns" className="text-muted-foreground hover:text-primary transition-colors">
                   Return Policy
-                </a>
+                </Link>
               </li>
             </ul>
           </div>

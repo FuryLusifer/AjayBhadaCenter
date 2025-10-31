@@ -8,14 +8,16 @@ const Cart = () => {
   const { items, updateQuantity, removeFromCart, loading } = useCart();
 
   const subtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
-  const getDeliveryCharge = (amount: number): number => {
+  
+  // Calculate delivery charges based on subtotal
+  const calculateDeliveryCharge = (amount: number) => {
     if (amount <= 1000) return 150;
-    if (amount <= 5000) return 200; // covers >1000 up to 5000
+    if (amount <= 5000) return 200;
     return 300; // >5000
   };
-  const deliverycharge = getDeliveryCharge(subtotal);
-  const tax = subtotal * 0.0; // No tax for simplicity
-  const total = subtotal + tax + deliverycharge;
+  
+  const deliveryCharge = calculateDeliveryCharge(subtotal);
+  const total = subtotal + deliveryCharge;
 
   if (loading) {
     return (
@@ -65,7 +67,7 @@ const Cart = () => {
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-base sm:text-lg mb-2 truncate">{item.product.name}</h3>
                   <p className="text-lg sm:text-xl font-bold text-primary mb-3">
-                    Rs.{item.product.price.toFixed(2)}
+                    Rs. {item.product.price.toFixed(2)}
                   </p>
 
                   <div className="flex flex-wrap items-center gap-3 sm:gap-4">
@@ -101,7 +103,7 @@ const Cart = () => {
 
                 <div className="sm:text-right w-full sm:w-auto">
                   <p className="font-bold text-base sm:text-lg">
-                    Rs.{(item.product.price * item.quantity).toFixed(2)}
+                    Rs. {(item.product.price * item.quantity).toFixed(2)}
                   </p>
                 </div>
               </div>
@@ -119,12 +121,8 @@ const Cart = () => {
                 <span className="font-semibold">Rs. {subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Tax</span>
-                <span className="font-semibold">Rs. {tax.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
                 <span className="text-muted-foreground">Delivery Charge</span>
-                <span className="font-semibold">Rs. {deliverycharge.toFixed(2)}</span>
+                <span className="font-semibold">Rs.{deliveryCharge.toFixed(2)}</span>
               </div>
               <div className="border-t pt-2 flex justify-between text-lg font-bold">
                 <span>Total</span>

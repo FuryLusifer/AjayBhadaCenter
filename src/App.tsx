@@ -18,12 +18,12 @@ import Orders from "./pages/Orders";
 import Profile from "./pages/Profile";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
+import Return from "./pages/Returns";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminProducts from "./pages/admin/Products";
 import AdminOrders from "./pages/admin/Orders";
 import AdminBanners from "./pages/admin/Banners";
 import NotFound from "./pages/NotFound";
-import Return from "./pages/return";
 
 const queryClient = new QueryClient();
 
