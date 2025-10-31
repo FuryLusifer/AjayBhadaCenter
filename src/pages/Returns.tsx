@@ -15,7 +15,7 @@ const Returns = () => {
             </p>
             <div>
               <h3 className="text-lg font-semibold text-foreground mb-2">Return Window</h3>
-              <p>You have 7 days from the date of delivery to return an item.</p>
+              <p>You have 2 days from the date of delivery to return an item.</p>
             </div>
             <div>
               <h3 className="text-lg font-semibold text-foreground mb-2">Eligible Items</h3>
@@ -31,7 +31,7 @@ const Returns = () => {
         <Card className="p-6">
           <h2 className="text-2xl font-semibold mb-4">Non-Returnable Items</h2>
           <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-            <li>Perishable goods such as food items</li>
+            <li>Kitchen Utensils and cookware</li>
             <li>Custom or personalized items</li>
             <li>Items marked as "Final Sale" or "Non-Returnable"</li>
             <li>Opened or used kitchenware for hygiene reasons</li>
@@ -96,8 +96,8 @@ const Returns = () => {
             If you have any questions about our return policy, please contact us:
           </p>
           <div className="space-y-1 text-muted-foreground">
-            <p><strong className="text-foreground">Email:</strong> returns@ajaybhadacenter.com</p>
-            <p><strong className="text-foreground">Phone:</strong> Available on our contact page</p>
+            <p><strong className="text-foreground">Phone/Whatsapp:</strong> <a href="https://wa.me/+9779763776991" target="_blank"> +977 9763776991</a></p>
+            <p><strong className="text-foreground">Tiktok:</strong><a href="https://www.tiktok.com/@ajay.bhada.center"> @ajay.bhada.center</a></p>
           </div>
         </Card>
       </div>
