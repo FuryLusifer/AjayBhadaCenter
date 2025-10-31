@@ -101,16 +101,16 @@ const Checkout = () => {
       if (uploadedFile) {
         const fileExt = uploadedFile.name.split('.').pop();
         const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-        const filePath = `payment-screenshots/${fileName}`;
+        const filePath = `${fileName}`;
 
         const { error: uploadError } = await supabase.storage
-          .from('product-images')
+          .from('payment-screenshots')
           .upload(filePath, uploadedFile);
 
         if (uploadError) throw uploadError;
 
         const { data: { publicUrl } } = supabase.storage
-          .from('product-images')
+          .from('payment-screenshots')
           .getPublicUrl(filePath);
 
         screenshotUrl = publicUrl;
