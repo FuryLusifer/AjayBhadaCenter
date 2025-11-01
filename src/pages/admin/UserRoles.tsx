@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/hooks/useAuth";
 import {
   Table,
   TableBody,
@@ -46,14 +47,23 @@ type UserRole = {
 };
 
 const UserRoles = () => {
+  const { user } = useAuth();
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [userRoles, setUserRoles] = useState<UserRole[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isOperationLoading, setIsOperationLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [roleChangeDialogOpen, setRoleChangeDialogOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [selectedNewRole, setSelectedNewRole] = useState<string | null>(null);
+
+  const userRoleMap = useMemo(() => {
+    return userRoles.reduce((acc, role) => {
+      acc[role.user_id] = role.role;
+      return acc;
+    }, {} as Record<string, string>);
+  }, [userRoles]);
 
   useEffect(() => {
     fetchData();
@@ -67,23 +77,38 @@ const UserRoles = () => {
         supabase.from("user_roles").select("*"),
       ]);
 
-      if (profilesRes.data) setProfiles(profilesRes.data);
-      if (rolesRes.data) setUserRoles(rolesRes.data);
+      if (profilesRes.error) throw profilesRes.error;
+      if (rolesRes.error) throw rolesRes.error;
+
+      setProfiles(profilesRes.data || []);
+      setUserRoles(rolesRes.data || []);
     } catch (error: any) {
-      toast.error("Failed to load users");
+      toast.error(error.message || "Failed to load users");
     } finally {
       setLoading(false);
     }
   };
 
   const getUserRole = (userId: string): string => {
-    const role = userRoles.find((r) => r.user_id === userId);
-    return role?.role || "customer";
+    return userRoleMap[userId] || "customer";
   };
 
   const handleRoleChange = async () => {
     if (!selectedUserId || !selectedNewRole) return;
 
+    // Check if trying to remove last admin
+    if (selectedNewRole !== 'admin') {
+      const adminCount = userRoles.filter(r => r.role === 'admin').length;
+      const isLastAdmin = adminCount === 1 && getUserRole(selectedUserId) === 'admin';
+      
+      if (isLastAdmin) {
+        toast.error("Cannot remove the last administrator");
+        setRoleChangeDialogOpen(false);
+        return;
+      }
+    }
+
+    setIsOperationLoading(true);
     try {
       const existingRole = userRoles.find((r) => r.user_id === selectedUserId);
 
@@ -95,7 +120,6 @@ const UserRoles = () => {
 
         if (error) throw error;
         
-        // Update local state immediately
         setUserRoles(prev => 
           prev.map(r => r.user_id === selectedUserId ? { ...r, role: selectedNewRole } : r)
         );
@@ -108,7 +132,6 @@ const UserRoles = () => {
 
         if (error) throw error;
         
-        // Add to local state immediately
         if (data) {
           setUserRoles(prev => [...prev, data]);
         }
@@ -120,17 +143,18 @@ const UserRoles = () => {
       setSelectedNewRole(null);
     } catch (error: any) {
       toast.error(error.message || "Failed to update role");
+    } finally {
+      setIsOperationLoading(false);
     }
   };
 
   const handleDeleteUser = async () => {
     if (!selectedUserId) return;
 
+    setIsOperationLoading(true);
     try {
-      // Delete user_roles first (foreign key constraint)
       await supabase.from("user_roles").delete().eq("user_id", selectedUserId);
       
-      // Delete profile
       const { error } = await supabase
         .from("profiles")
         .delete()
@@ -144,6 +168,8 @@ const UserRoles = () => {
       fetchData();
     } catch (error: any) {
       toast.error(error.message || "Failed to delete user");
+    } finally {
+      setIsOperationLoading(false);
     }
   };
 
@@ -232,6 +258,7 @@ const UserRoles = () => {
                       <Button
                         variant="destructive"
                         size="sm"
+                        disabled={profile.id === user?.id}
                         onClick={() => {
                           setSelectedUserId(profile.id);
                           setDeleteDialogOpen(true);
@@ -248,7 +275,16 @@ const UserRoles = () => {
         </div>
       </Card>
 
-      <AlertDialog open={roleChangeDialogOpen} onOpenChange={setRoleChangeDialogOpen}>
+      <AlertDialog 
+        open={roleChangeDialogOpen} 
+        onOpenChange={(open) => {
+          setRoleChangeDialogOpen(open);
+          if (!open) {
+            setSelectedUserId(null);
+            setSelectedNewRole(null);
+          }
+        }}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Confirm Role Change</AlertDialogTitle>
@@ -264,14 +300,25 @@ const UserRoles = () => {
             }}>
               Cancel
             </AlertDialogCancel>
-            <AlertDialogAction onClick={handleRoleChange}>
-              Change Role
+            <AlertDialogAction 
+              onClick={handleRoleChange}
+              disabled={isOperationLoading}
+            >
+              {isOperationLoading ? "Updating..." : "Change Role"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+      <AlertDialog 
+        open={deleteDialogOpen} 
+        onOpenChange={(open) => {
+          setDeleteDialogOpen(open);
+          if (!open) {
+            setSelectedUserId(null);
+          }
+        }}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete User Account</AlertDialogTitle>
@@ -284,8 +331,12 @@ const UserRoles = () => {
             <AlertDialogCancel onClick={() => setSelectedUserId(null)}>
               Cancel
             </AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteUser} className="bg-destructive">
-              Delete User
+            <AlertDialogAction 
+              onClick={handleDeleteUser} 
+              className="bg-destructive"
+              disabled={isOperationLoading}
+            >
+              {isOperationLoading ? "Deleting..." : "Delete User"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
