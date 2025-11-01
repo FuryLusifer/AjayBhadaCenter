@@ -51,7 +51,9 @@ const UserRoles = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [roleChangeDialogOpen, setRoleChangeDialogOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [selectedNewRole, setSelectedNewRole] = useState<string | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -79,27 +81,43 @@ const UserRoles = () => {
     return role?.role || "customer";
   };
 
-  const handleRoleChange = async (userId: string, newRole: string) => {
+  const handleRoleChange = async () => {
+    if (!selectedUserId || !selectedNewRole) return;
+
     try {
-      const existingRole = userRoles.find((r) => r.user_id === userId);
+      const existingRole = userRoles.find((r) => r.user_id === selectedUserId);
 
       if (existingRole) {
         const { error } = await supabase
           .from("user_roles")
-          .update({ role: newRole as any })
-          .eq("user_id", userId);
+          .update({ role: selectedNewRole as any })
+          .eq("user_id", selectedUserId);
 
         if (error) throw error;
+        
+        // Update local state immediately
+        setUserRoles(prev => 
+          prev.map(r => r.user_id === selectedUserId ? { ...r, role: selectedNewRole } : r)
+        );
       } else {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from("user_roles")
-          .insert({ user_id: userId, role: newRole as any });
+          .insert({ user_id: selectedUserId, role: selectedNewRole as any })
+          .select()
+          .single();
 
         if (error) throw error;
+        
+        // Add to local state immediately
+        if (data) {
+          setUserRoles(prev => [...prev, data]);
+        }
       }
 
       toast.success("Role updated successfully");
-      fetchData();
+      setRoleChangeDialogOpen(false);
+      setSelectedUserId(null);
+      setSelectedNewRole(null);
     } catch (error: any) {
       toast.error(error.message || "Failed to update role");
     }
@@ -195,7 +213,11 @@ const UserRoles = () => {
                     <TableCell>
                       <Select
                         value={getUserRole(profile.id)}
-                        onValueChange={(value) => handleRoleChange(profile.id, value)}
+                        onValueChange={(value) => {
+                          setSelectedUserId(profile.id);
+                          setSelectedNewRole(value);
+                          setRoleChangeDialogOpen(true);
+                        }}
                       >
                         <SelectTrigger className="w-32">
                           <SelectValue />
@@ -226,13 +248,36 @@ const UserRoles = () => {
         </div>
       </Card>
 
+      <AlertDialog open={roleChangeDialogOpen} onOpenChange={setRoleChangeDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm Role Change</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to change this user's role to {selectedNewRole}?
+              This will affect their access permissions immediately.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              setSelectedUserId(null);
+              setSelectedNewRole(null);
+            }}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleRoleChange}>
+              Change Role
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogTitle>Delete User Account</AlertDialogTitle>
             <AlertDialogDescription>
               This will permanently delete the user account and all associated data.
-              This action cannot be undone.
+              This action cannot be undone. Are you sure you want to proceed?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
