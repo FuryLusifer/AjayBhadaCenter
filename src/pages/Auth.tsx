@@ -27,9 +27,14 @@ const signInSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
+const resetPasswordSchema = z.object({
+  email: z.string().trim().email("Invalid email address"),
+});
+
 const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { user, signUp, signIn } = useAuth();
+  const [showResetPassword, setShowResetPassword] = useState(false);
+  const { user, signUp, signIn, resetPassword } = useAuth();
   const navigate = useNavigate();
 
   const signUpForm = useForm<z.infer<typeof signUpSchema>>({
@@ -48,6 +53,13 @@ const Auth = () => {
     defaultValues: {
       email: "",
       password: "",
+    },
+  });
+
+  const resetPasswordForm = useForm<z.infer<typeof resetPasswordSchema>>({
+    resolver: zodResolver(resetPasswordSchema),
+    defaultValues: {
+      email: "",
     },
   });
 
@@ -79,6 +91,19 @@ const Auth = () => {
     }
   };
 
+  const onResetPassword = async (values: z.infer<typeof resetPasswordSchema>) => {
+    setIsLoading(true);
+    try {
+      await resetPassword(values.email);
+      setShowResetPassword(false);
+      resetPasswordForm.reset();
+    } catch (error) {
+      // Error handling is managed by useAuth hook
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4">
       <Card className="w-full max-w-md">
@@ -96,39 +121,82 @@ const Auth = () => {
             </TabsList>
 
             <TabsContent value="signin">
-              <Form {...signInForm}>
-                <form onSubmit={signInForm.handleSubmit(onSignIn)} className="space-y-4">
-                  <FormField
-                    control={signInForm.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input type="email" placeholder="your@email.com" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={signInForm.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Password</FormLabel>
-                        <FormControl>
-                          <Input type="password" placeholder="••••••" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? "Signing in..." : "Sign In"}
-                  </Button>
-                </form>
-              </Form>
+              {showResetPassword ? (
+                <div className="space-y-4">
+                  <Form {...resetPasswordForm}>
+                    <form onSubmit={resetPasswordForm.handleSubmit(onResetPassword)} className="space-y-4">
+                      <FormField
+                        control={resetPasswordForm.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Email</FormLabel>
+                            <FormControl>
+                              <Input type="email" placeholder="your@email.com" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <div className="flex gap-2">
+                        <Button type="submit" className="flex-1" disabled={isLoading}>
+                          {isLoading ? "Sending..." : "Send Reset Link"}
+                        </Button>
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          onClick={() => setShowResetPassword(false)}
+                          disabled={isLoading}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </form>
+                  </Form>
+                </div>
+              ) : (
+                <Form {...signInForm}>
+                  <form onSubmit={signInForm.handleSubmit(onSignIn)} className="space-y-4">
+                    <FormField
+                      control={signInForm.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <Input type="email" placeholder="your@email.com" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={signInForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Password</FormLabel>
+                          <FormControl>
+                            <Input type="password" placeholder="••••••" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button type="submit" className="w-full" disabled={isLoading}>
+                      {isLoading ? "Signing in..." : "Sign In"}
+                    </Button>
+                    <Button 
+                      type="button" 
+                      variant="link" 
+                      className="w-full text-sm"
+                      onClick={() => setShowResetPassword(true)}
+                    >
+                      Forgot password?
+                    </Button>
+                  </form>
+                </Form>
+              )}
             </TabsContent>
 
             <TabsContent value="signup">

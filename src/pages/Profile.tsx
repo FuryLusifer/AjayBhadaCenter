@@ -5,16 +5,22 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 
 const Profile = () => {
-  const { user } = useAuth();
+  const { user, changePassword } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
   const [profile, setProfile] = useState({
     full_name: "",
     email: "",
     phone: "",
+  });
+  const [passwordData, setPasswordData] = useState({
+    newPassword: "",
+    confirmPassword: "",
   });
 
   useEffect(() => {
@@ -65,6 +71,31 @@ const Profile = () => {
     }
   };
 
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
+    if (passwordData.newPassword.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+
+    setChangingPassword(true);
+    try {
+      await changePassword(passwordData.newPassword);
+      setPasswordData({ newPassword: "", confirmPassword: "" });
+    } catch (error) {
+      // Error handled in changePassword
+    } finally {
+      setChangingPassword(false);
+    }
+  };
+
   if (!user) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
@@ -85,7 +116,8 @@ const Profile = () => {
     <div className="container mx-auto px-4 py-8 max-w-2xl">
       <h1 className="text-4xl font-bold mb-8">My Profile</h1>
 
-      <Card className="p-6">
+      <Card className="p-6 mb-6">
+        <h2 className="text-2xl font-semibold mb-4">Profile Information</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label htmlFor="full_name">Full Name</Label>
@@ -121,6 +153,39 @@ const Profile = () => {
 
           <Button type="submit" disabled={saving}>
             {saving ? "Saving..." : "Save Changes"}
+          </Button>
+        </form>
+      </Card>
+
+      <Card className="p-6">
+        <h2 className="text-2xl font-semibold mb-4">Change Password</h2>
+        <form onSubmit={handlePasswordChange} className="space-y-4">
+          <div>
+            <Label htmlFor="newPassword">New Password</Label>
+            <Input
+              id="newPassword"
+              type="password"
+              value={passwordData.newPassword}
+              onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+              required
+              minLength={6}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="confirmPassword">Confirm New Password</Label>
+            <Input
+              id="confirmPassword"
+              type="password"
+              value={passwordData.confirmPassword}
+              onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+              required
+              minLength={6}
+            />
+          </div>
+
+          <Button type="submit" disabled={changingPassword} variant="secondary">
+            {changingPassword ? "Changing..." : "Change Password"}
           </Button>
         </form>
       </Card>

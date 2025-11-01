@@ -1,6 +1,6 @@
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Package, ShoppingCart, Image, ArrowLeft } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, Image, ArrowLeft, UserCog } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const AdminLayout = () => {
@@ -11,6 +11,7 @@ const AdminLayout = () => {
     { path: "/admin/products", label: "Products", icon: Package },
     { path: "/admin/orders", label: "Orders", icon: ShoppingCart },
     { path: "/admin/banners", label: "Banners", icon: Image },
+    { path: "/admin/users", label: "User Roles", icon: UserCog },
   ];
 
   return (
